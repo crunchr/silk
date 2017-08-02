@@ -133,3 +133,8 @@ SILKY_PYTHON_PROFILER_BINARY = True
 SILKY_MAX_RECORDED_REQUESTS_CHECK_PERCENT = 0
 # SILKY_AUTHENTICATION = True
 # SILKY_AUTHORISATION = True
+
+def SILKY_POST_PROCESS_REQUEST(request):
+    if not hasattr(request, 'altered') and request.view_name:
+        request.view_name += '(' + request.query_params + ')'
+        request.altered = True
