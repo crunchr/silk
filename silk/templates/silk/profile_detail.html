@@ -129,7 +129,7 @@
                         function (response) {
                             var svg = '#graph-div';
                             $(svg).html(Viz(response.dot));
-                            $(svg + ' svg').attr('width', 960).attr('height', 480);
+                            $(svg + ' svg').attr('width', 960).attr('height', 600);
                             svgPanZoom(svg + ' svg', { controlIconsEnabled: true });
                         }
                     );

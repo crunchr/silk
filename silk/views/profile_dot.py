@@ -10,10 +10,20 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.http import HttpResponse
-from gprof2dot import DotWriter, PstatsParser, Profile, TEMPERATURE_COLORMAP
+from gprof2dot import DotWriter, PstatsParser, Theme
 # silk
 from silk.auth import login_possibly_required, permissions_possibly_required
 from silk.models import Request
+
+
+COLOR_MAP = Theme(
+    mincolor=(0.18, 0.51, 0.53),
+    maxcolor=(0.03, 0.49, 0.50),
+    gamma=1.5,
+    fontname='FiraSans',
+    minfontsize=6.0,
+    maxfontsize=6.0,
+)
 
 
 @contextmanager
@@ -48,7 +58,7 @@ def _create_dot(profile, cutoff):
     profile.prune(node_cutoff, edge_cutoff, False)
 
     with closing(StringIO()) as fp:
-        DotWriter(fp).graph(profile, TEMPERATURE_COLORMAP)
+        DotWriter(fp).graph(profile, COLOR_MAP)
         return fp.getvalue()
 
 
