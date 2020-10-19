@@ -5,6 +5,7 @@ from django.db import transaction, DatabaseError
 from django.urls import reverse, NoReverseMatch
 from django.db.models.sql.compiler import SQLCompiler
 from django.utils import timezone
+from cspeedscope import Recorder
 
 from silk.collector import DataCollector
 
@@ -67,7 +68,11 @@ class SilkyMiddleware:
     def __call__(self, request):
         self.process_request(request)
 
+        collector = DataCollector()
+        collector.local.pythonprofiler = Recorder()
+        collector.local.pythonprofiler.start()
         response = self.get_response(request)
+        collector.local.pythonprofiler.stop()
 
         response = self.process_response(request, response)
 
@@ -123,7 +128,6 @@ class SilkyMiddleware:
         Logger.debug('Process response')
         with silk_meta_profiler():
             collector = DataCollector()
-            collector.stop_python_profiler()
             silk_request = collector.request
             if silk_request:
                 silk_response = ResponseModelFactory(response).construct_response_model()

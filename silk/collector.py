@@ -1,3 +1,8 @@
+import json
+import os
+import subprocess
+import tempfile
+import uuid
 from threading import local
 
 import cProfile
@@ -5,6 +10,8 @@ import pstats
 import logging
 
 from io import StringIO
+
+from speedscope import Recorder
 
 from silk import models
 from silk.config import SilkyConfig
@@ -89,9 +96,6 @@ class DataCollector(metaclass=Singleton):
     def configure(self, request=None, should_profile=True):
         self.request = request
         self._configure()
-        if should_profile:
-            self.local.pythonprofiler = cProfile.Profile()
-            self.local.pythonprofiler.enable()
 
     def clear(self):
         self.request = None
@@ -130,26 +134,13 @@ class DataCollector(metaclass=Singleton):
             self.request.meta_time_spent_queries = query_time
             self.request.save()
 
-    def stop_python_profiler(self):
-        if getattr(self.local, 'pythonprofiler', None):
-            self.local.pythonprofiler.disable()
-
     def finalise(self):
         if getattr(self.local, 'pythonprofiler', None):
-            s = StringIO()
-            ps = pstats.Stats(self.local.pythonprofiler, stream=s).sort_stats('cumulative')
-            ps.print_stats()
-            profile_text = s.getvalue()
-            profile_text = "\n".join(
-                profile_text.split("\n")[0:256])  # don't record too much because it can overflow the field storage size
-            self.request.pyprofile = profile_text
-
-            if SilkyConfig().SILKY_PYTHON_PROFILER_BINARY:
-                file_name = self.request.prof_file.storage.get_available_name("{}.prof".format(str(self.request.id)))
-                with open(self.request.prof_file.storage.path(file_name), 'w+b') as f:
-                    ps.dump_stats(f.name)
-                self.request.prof_file = f.name
-                self.request.save()
+            #d = self.local.pythonprofiler._make_speed_scope_dict()
+            with StringIO() as f:
+                #json.dump(d, f)
+                self.local.pythonprofiler.export_to_json(f)
+                self.request.pyprofile = f.getvalue()
 
         sql_queries = []
         for identifier, query in self.queries.items():

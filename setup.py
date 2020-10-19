@@ -42,6 +42,7 @@ setup(
         'autopep8',
         'pytz',
         'gprof2dot>=2017.09.19',
+        'speedscope @ https://github.com/moagstar/pyspeedscope/tree/cython',
     ],
     python_requires='>=3.5',
     setup_requires=['setuptools_scm'],

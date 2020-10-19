@@ -8,6 +8,7 @@ from silk.views.profiling import ProfilingView
 from silk.views.raw import Raw
 from silk.views.request_detail import RequestView
 from silk.views.requests import RequestsView
+from silk.views.speedscope import SpeedscopeData
 from silk.views.sql import SQLView
 from silk.views.sql_detail import SQLDetailView
 from silk.views.summary import SummaryView
@@ -90,6 +91,11 @@ urlpatterns = [
         r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/cprofile/$',
         CProfileView.as_view(),
         name='cprofile'
+    ),
+    url(
+        r'^request/(?P<request_id>[a-zA-Z0-9\-]+)/speedscope-data/$',
+        SpeedscopeData.as_view(),
+        name='speedscope_data'
     ),
     url(
         r'^profiling/$',

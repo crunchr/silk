@@ -1,0 +1,20 @@
+{% extends "silk/base/detail_base.html" %}
+{% load silk_filters %}
+{% load silk_nav %}
+{% load silk_inclusion %}
+{% load static %}
+
+{% block style %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'silk/css/summary.css' %}">
+    <style>
+    </style>
+{% endblock %}
+
+{% block menu %}
+    {% request_menu request silk_request %}
+{% endblock %}
+
+{% block data %}
+      <iframe class="iframe" src="silk/lib/speedscope/index.html#profileURL=http://localhost:63342/speedscope/test.json"></iframe>
+{% endblock %}

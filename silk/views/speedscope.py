@@ -1,6 +1,4 @@
-import json
-from urllib.parse import urlparse
-
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -15,17 +13,21 @@ class CProfileView(View):
     @method_decorator(login_possibly_required)
     @method_decorator(permissions_possibly_required)
     def get(self, request, *_, **kwargs):
-        request_id = kwargs['request_id']
+        request_id = kwargs['request_id']        
         silk_request = Request.objects.get(pk=request_id)
-        profile_url = urlparse(request.build_absolute_uri().replace('cprofile', 'speedscope-data'))
         context = {
             'silk_request': silk_request,
             'request': request,
-            'profile_url': json.dumps({
-                'scheme': profile_url.scheme,
-                'netloc': profile_url.netloc,
-                'path': profile_url.path,
-            }),
+            'profile_url': request.path.replace('cprofile', 'speedscope'),
         }
-
+            
         return render(request, 'silk/cprofile.html', context)
+
+
+class SpeedscopeData(View):
+
+    @method_decorator(login_possibly_required)
+    @method_decorator(permissions_possibly_required)
+    def get(self, request, *_, **kwargs):
+        silk_request = Request.objects.get(pk=kwargs['request_id'])
+        return HttpResponse(silk_request.pyprofile)
